@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación - Acumulación de Contaminante en un Radio de 5 km</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f7f7f7;
+            color: #333;
+        }
+
+        h1, h2, h3 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        h1 { font-size: 26px; }
+        h2 { font-size: 22px; margin-top: 20px; }
+        h3 { font-size: 18px; margin-top: 15px; }
+
+        p {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        ul {
+            margin: 0;
+            padding: 0 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        code {
+            background-color: #eee;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 14px;
+            color: #e74c3c;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            h1 { font-size: 24px; }
+            h2 { font-size: 20px; }
+            h3 { font-size: 16px; }
+            p, li {
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Documentación: Acumulación de Contaminante en un Radio de 5 km</h1>
+        <p>Este código simula visualmente la acumulación de un contaminante en un área circular de 5 km de radio desde un punto de derrame. Utiliza <code>D3.js</code> para crear una animación que expande visualmente la concentración del contaminante y calcula la acumulación en tiempo real.</p>
+
+        <h2>Funcionalidades Principales</h2>
+        <ul>
+            <li><strong>Visualización de Acumulación de Contaminante</strong>: Se genera un círculo que representa la zona de contaminación desde el punto de derrame, mostrando cómo la concentración del contaminante disminuye con la distancia.</li>
+            <li><strong>Cálculo de la Concentración</strong>: La concentración se calcula usando la fórmula <code>concentracion(r) = C0 / (1 + r^2)</code>, donde <code>C0</code> es la concentración inicial.</li>
+            <li><strong>Animación de Expansión</strong>: Mediante <code>requestAnimationFrame</code>, se actualiza la visualización de la acumulación con cada incremento del radio, cambiando el color de acuerdo a la concentración.</li>
+            <li><strong>Escala de Concentración y Total Acumulado</strong>: La interfaz muestra una escala de colores (rojo a verde) para representar niveles de concentración, y el valor de acumulación total en tiempo real.</li>
+            <li><strong>Interacción del Usuario</strong>: Al mover el cursor sobre el área de contaminación, un tooltip muestra la concentración estimada en el punto bajo el cursor.</li>
+            <li><strong>Elementos Visuales</strong>: Incluye un icono de un barco en el centro que indica el punto de derrame, y una leyenda en el borde del círculo para la distancia de 5 km.</li>
+        </ul>
+
+        <h2>Librerías Utilizadas</h2>
+        <p>Se usa <strong>D3.js</strong> para manipulación y visualización de datos mediante <code>SVG</code>.</p>
+
+        <h2>Estructura del Código</h2>
+        <ul>
+            <li><strong>HTML</strong>: Define la estructura de la página, la interfaz de usuario y un pie de página con información adicional.</li>
+            <li><strong>CSS</strong>: Estilos para el fondo, el texto, el SVG y otros elementos visuales, incluyendo el tooltip y la escala de concentración.</li>
+            <li><strong>JavaScript</strong>: Lógica para calcular la concentración, gestionar la animación de expansión y mostrar el tooltip interactivo.</li>
+        </ul>
+
+        <h2>Instrucciones para Visualización</h2>
+        <p>Este archivo HTML puede abrirse en cualquier navegador con soporte de JavaScript. Solo se requiere conexión a Internet para cargar la librería <strong>D3.js</strong> desde el enlace proporcionado.</p>
+    </div>
+</body>
+</html>

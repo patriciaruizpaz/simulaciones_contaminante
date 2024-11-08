@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Simulación de Derrame de Contaminante en un Río</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            background-color: #f0f4f8;
+            margin: 0; 
+            padding: 20px; 
+        }
+
+        .concentracion { 
+            fill-opacity: 0.6; 
+        }
+
+        .leyenda { 
+            font-size: 16px; 
+            fill: #333; 
+        }
+
+        .contador { 
+            font-size: 18px; 
+            margin-top: 10px; 
+            color: #444; 
+        }
+
+        h2 { 
+            font-size: 24px; 
+            color: #2c3e50; 
+            margin-bottom: 5px; 
+        }
+
+        .tooltip {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 8px;
+            border: 1px solid #aaa;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #333;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+        }
+
+        svg { 
+            display: block; 
+            margin: 20px auto; 
+            background-color: #ffffff; 
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Nuevo estilo para la escala de concentración */
+        .escala-concentracion {
+            display: inline-block;
+            padding: 10px 15px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .escala-concentracion span {
+            margin: 0 5px;
+            font-weight: bold;
+        }
+
+        /* Estilos para el pie de página */
+        footer {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #2c3e50;
+            color: #ffffff;
+            font-size: 14px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+            line-height: 1.6;
+        }
+
+        .footer-universidad {
+            font-weight: bold;
+            color: #a7c5eb;
+        }
+
+        .footer-info {
+            color: #c1d3fe;
+            font-size: 13px;
+        }
+
+        .footer-nombres {
+            font-size: 14px;
+            color: #ffffff;
+        }
+
+        .footer-grupo {
+            font-weight: bold;
+            color: #f6c5af;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Simulación del Derrame<br>de Contaminante en un Río</h2>
+
+    <div class="escala-concentracion">
+        Escala de Concentración (mg/L):
+        <span style="color: red;">Rojo (100)</span> -
+        <span style="color: #FFAA00;">Amarillo (50)</span> -
+        <span style="color: green;">Verde (0)</span>
+    </div>
+
+    <div id="contador" class="contador">Concentración actual: 100 mg/L</div>
+    <svg width="800" height="600"></svg>
+
+    <div class="tooltip" id="tooltip" style="display: none;"></div>
+
+    <script>
+        const width = 800, height = 600;
+        const svg = d3.select("svg");
+        const centro = { x: width / 2, y: height / 2 };
+        const radioMaximo = 200;
+        const escalaPixelsPorKm = 40;
+        const tooltip = d3.select("#tooltip");
+        const contador = d3.select("#contador");
+
+        function concentracion(x, y) {
+            const C0 = 100; 
+            const distanciaCuadrada = Math.round((x * x + y * y) * 1e6) / 1e6;
+            return distanciaCuadrada <= 25 ? C0 / (1 + distanciaCuadrada) : 0;
+        }
+
+        function colorConcentracion(concentracion) {
+            if (concentracion >= 50) {
+                return `rgb(255, ${Math.floor(255 * (100 - concentracion) / 50)}, 0)`;
+            } else {
+                return `rgb(${Math.floor(255 * concentracion / 50)}, 255, 0)`;
+            }
+        }
+
+        svg.append("circle")
+            .attr("cx", centro.x)
+            .attr("cy", centro.y)
+            .attr("r", radioMaximo)
+            .attr("stroke", "black")
+            .attr("stroke-dasharray", "5,5")
+            .attr("fill", "none")
+            .attr("stroke-width", 1);
+
+        const ciudadGrupo = svg.append("g")
+            .attr("transform", `translate(${centro.x + radioMaximo + 15}, ${centro.y - 20})`);
+
+        ciudadGrupo.append("text")
+            .attr("class", "leyenda")
+            .style("text-anchor", "start")
+            .text("Ciudad a 5 km");
+
+        ciudadGrupo.append("image")
+            .attr("xlink:href", "https://www.verdecalma.com.ar/wp-content/uploads/2024/11/ciudad-rio.png")
+            .attr("x", 5)
+            .attr("y", 5)
+            .attr("width", 40)
+            .attr("height", 40);
+
+        const zonaDerrame = svg.append("g")
+            .attr("class", "zona-derrame")
+            .attr("transform", `translate(${centro.x}, ${centro.y - 60})`);
+
+        zonaDerrame.append("text")
+            .attr("class", "leyenda")
+            .style("font-weight", "bold")
+            .style("font-size", "16px")
+            .attr("text-anchor", "middle")
+            .text("Zona de derrame");
+
+        zonaDerrame.append("image")
+            .attr("xlink:href", "https://www.verdecalma.com.ar/wp-content/uploads/2024/11/oil-spill-blanco.png")
+            .attr("x", -20)
+            .attr("y", 20)
+            .attr("width", 40)
+            .attr("height", 40);
+
+        const grupoBarco = svg.append("g").attr("id", "grupo-barco");
+        const barco = grupoBarco.append("image")
+            .attr("xlink:href", "https://verdecalma.com.ar/wp-content/uploads/2024/11/derrame-2-color.png")
+            .attr("width", 50)
+            .attr("height", 50)
+            .attr("id", "barco");
+
+        function animarContaminante() {
+            let radio = 1;
+
+            function frame() {
+                const distancia = parseFloat((radio / escalaPixelsPorKm).toFixed(2));
+                const concentracionActual = concentracion(distancia, 0);
+                const color = colorConcentracion(concentracionActual);
+
+                svg.insert("circle", ":first-child")
+                    .attr("cx", centro.x)
+                    .attr("cy", centro.y)
+                    .attr("r", radio)
+                    .attr("class", "concentracion")
+                    .style("fill", color);
+
+                contador.html(`<strong>Concentración actual:</strong> ${concentracionActual.toFixed(2)} mg/L`);
+
+                grupoBarco.attr("transform", `translate(${centro.x + radio - 25}, ${centro.y - 25})`);
+
+                radio = parseFloat((radio + 0.2).toFixed(2));
+
+                if (radio <= radioMaximo) {
+                    requestAnimationFrame(frame);
+                }
+            }
+
+            frame();
+        }
+
+        animarContaminante();
+
+        svg.append("circle")
+            .attr("cx", centro.x)
+            .attr("cy", centro.y)
+            .attr("r", 3)
+            .attr("fill", "red")
+            .attr("class", "punto-origen");
+
+        svg.on("mousemove", function(event) {
+            const [mouseX, mouseY] = d3.pointer(event);
+            const dx = (mouseX - centro.x) / escalaPixelsPorKm;
+            const dy = (mouseY - centro.y) / escalaPixelsPorKm;
+            const distancia = Math.sqrt(dx * dx + dy * dy);
+
+            if (distancia <= 5) {
+                tooltip.style("display", "block")
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 10) + "px")
+                    .html(`Concentración: ${concentracion(dx, dy).toFixed(2)} mg/L`);
+            } else {
+                tooltip.style("display", "none");
+            }
+        });
+
+        svg.on("mouseleave", () => tooltip.style("display", "none"));
+    </script>
+
+    <footer>
+        <div class="footer-universidad">Facultad de Cs. Físico Matemáticas y Naturales - Facultad de Cs. Económicas, Jurídicas y Sociales</div>
+        <div class="footer-universidad">Universidad Nacional de San Luis</div>
+        <div class="footer-info">Cálculo II - Grupo 5</div>
+        <div class="footer-nombres">María Virginia González - Patricia Ruiz Paz - Francisca Scattolini</div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>README - Simulación de Derrame de Contaminante en un Río</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f6f8;
+            color: #333;
+            max-width: 800px;
+            margin: auto;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        h2 {
+            font-size: 22px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        code {
+            background-color: #f9f9f9;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #d63333;
+        }
+        ul {
+            list-style-type: square;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simulación de Derrame de Contaminante en un Río</h1>
+
+    <h2>Funcionalidad Principal</h2>
+
+    <ul>
+        <li><strong>Cálculo de la Concentración</strong>:
+            <p>La concentración del contaminante se calcula utilizando la función <code>concentracion(x, y)</code>, donde <code>x</code> y <code>y</code> son las coordenadas relativas al punto de origen. La concentración en el centro es <code>C0 = 100 mg/L</code> y disminuye con la distancia hasta un límite de 5 km.</p>
+        </li>
+
+        <li><strong>Visualización de la Dispersión</strong>:
+            <p>Se usan círculos concéntricos coloreados para representar visualmente la dispersión desde el punto de origen. Cada círculo recibe un color basado en la concentración, calculada mediante <code>colorConcentracion(concentracion)</code>. Los colores van de rojo a verde, indicando una alta a baja concentración.</p>
+        </li>
+
+        <li><strong>Interactividad y Tooltip</strong>:
+            <p>Al mover el cursor sobre la visualización, un tooltip muestra la concentración en la posición del cursor (si está dentro de 5 km del origen). La concentración se calcula dinámicamente de acuerdo a la posición del mouse.</p>
+        </li>
+
+        <li><strong>Animación del Derrame</strong>:
+            <p>La dispersión del contaminante se anima con la función <code>animarContaminante()</code>, que incrementa el radio del derrame hasta alcanzar el máximo (200 px o 5 km). Se utiliza <code>requestAnimationFrame</code> para una animación suave.</p>
+        </li>
+
+        <li><strong>Indicadores de Ubicación</strong>:
+            <p>Se agregan íconos como referencia visual, incluyendo una ciudad a 5 km y un barco en movimiento sobre el borde de la zona contaminada.</p>
+        </li>
+    </ul>
+
+    <h2>Estructura del Código</h2>
+
+    <p>El código incluye las siguientes secciones clave:</p>
+    <ul>
+        <li><strong>HTML y Estilos CSS</strong>: Define la estructura y estilo de los elementos de la página, como el fondo, la escala de concentración, pie de página, y el tooltip.</li>
+        <li><strong>JavaScript con D3.js</strong>: Define las funciones para cálculo de concentración, visualización del derrame, animación y la interactividad, utilizando D3.js para manipulación SVG.</li>
+    </ul>
+
+    <h2>Requisitos</h2>
+
+    <p>Para ejecutar este proyecto, es necesario:</p>
+    <ul>
+        <li>Conexión a internet para cargar la biblioteca D3.js desde su CDN.</li>
+        <li>Un navegador moderno con soporte para HTML5 y SVG para la animación y visualización.</li>
+    </ul>
+</body>
+</html>

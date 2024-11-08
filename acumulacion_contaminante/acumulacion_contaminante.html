@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Acumulación de Contaminante en un Radio de 5 km</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f3f8fc;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h2 { font-size: 24px; color: #34495e; margin-bottom: 5px; }
+        p { font-size: 16px; color: #555; }
+        .concentracion { fill-opacity: 0.4; }
+        .leyenda { font-size: 14px; fill: #333; font-weight: bold; }
+        .tooltip {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #333;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+        }
+        #acumulacion-total { font-weight: bold; color: #e74c3c; }
+        
+        /* Estilo para la escala de concentración */
+        .escala-concentracion {
+            display: inline-block;
+            padding: 10px 15px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+        
+        .escala-concentracion span {
+            margin: 0 5px;
+            font-weight: bold;
+        }
+
+        svg {
+            display: block;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Estilos para el pie de página */
+        footer {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #2c3e50;
+            color: #ffffff;
+            font-size: 14px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+            line-height: 1.6;
+        }
+
+        .footer-universidad {
+            font-weight: bold;
+            color: #a7c5eb;
+        }
+
+        .footer-info {
+            color: #c1d3fe;
+            font-size: 13px;
+        }
+
+        .footer-nombres {
+            font-size: 14px;
+            color: #ffffff;
+        }
+
+        .footer-grupo {
+            font-weight: bold;
+            color: #f6c5af;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Acumulación de Contaminante<br>en un Radio de 5 km</h2>
+
+    <!-- Escala de Concentración con el nuevo estilo -->
+    <div class="escala-concentracion">
+        Escala de Concentración (mg/L):
+        <span style="color: red;">Rojo (100)</span> -
+        <span style="color: #FFAA00;">Amarillo (50)</span> -
+        <span style="color: green;">Verde (0)</span>
+    </div>
+
+    <p><strong>Acumulación total: </strong><span id="acumulacion-total">0 mg·km²/L</span></p>
+    <svg width="800" height="600"></svg>
+    <div class="tooltip" id="tooltip" style="display: none;"></div>
+
+    <script>
+        const width = 800, height = 600;
+        const svg = d3.select("svg");
+        const centro = { x: width / 2, y: height / 2 };
+        const radioMaximo = 250;
+        const tooltip = d3.select("#tooltip");
+        let acumulacionTotal = 0;
+
+        const grupoAcumulacion = svg.append("g").attr("id", "grupo-acumulacion");
+
+        const C0 = 100;
+        const radioReal = 5;
+
+        function concentracion(r) {
+            return C0 / (1 + r * r);
+        }
+
+        function expandirAcumulacion() {
+            let radio = 0;
+
+            function frame() {
+                if (radio <= radioMaximo) {
+                    const distanciaReal = (radio / radioMaximo) * radioReal;
+                    const pasoAngular = 100;
+                    let contaminanteAnillo = 0;
+
+                    for (let i = 0; i < pasoAngular; i++) {
+                        const theta = (2 * Math.PI * i) / pasoAngular;
+                        const r = distanciaReal;
+                        contaminanteAnillo += concentracion(r);
+                    }
+
+                    contaminanteAnillo *= (2 * Math.PI * distanciaReal) / pasoAngular;
+                    contaminanteAnillo *= 0.78494;
+
+                    acumulacionTotal += contaminanteAnillo;
+
+                    grupoAcumulacion.append("circle")
+                        .attr("cx", centro.x)
+                        .attr("cy", centro.y)
+                        .attr("r", radio)
+                        .attr("class", "concentracion")
+                        .style("fill", colorConcentracion(radio));
+
+                    const areaKm2 = Math.PI * Math.pow(radioReal, 2);
+                    const acumulacionPorKm2 = acumulacionTotal / areaKm2;
+
+                    d3.select("#acumulacion-total").text(`${acumulacionPorKm2.toFixed(2)} mg·km²/L`);
+
+                    radio += 0.5;
+                    requestAnimationFrame(frame);
+                }
+            }
+
+            frame();
+        }
+
+        function colorConcentracion(distancia) {
+            const intensidad = 1 - (distancia / radioMaximo);
+            const rojo = Math.floor(255 * intensidad);
+            const verde = Math.floor(255 * (1 - intensidad));
+            return `rgb(${rojo}, ${verde}, 0)`;
+        }
+
+        expandirAcumulacion();
+
+        svg.append("circle")
+            .attr("cx", centro.x)
+            .attr("cy", centro.y)
+            .attr("r", radioMaximo)
+            .attr("stroke", "black")
+            .attr("stroke-dasharray", "5,5")
+            .attr("fill", "none")
+            .attr("stroke-width", 1);
+
+        svg.append("text")
+            .attr("x", centro.x + radioMaximo + 5)
+            .attr("y", centro.y - 10)
+            .attr("class", "leyenda")
+            .text("Radio de 5 km")
+            .append("tspan")
+            .attr("x", centro.x + radioMaximo + 5)
+            .attr("dy", 15)
+            .text("Área de")
+            .append("tspan")
+            .attr("x", centro.x + radioMaximo + 5)
+            .attr("dy", 15)
+            .text("Acumulación");
+
+        const grupoBarco = svg.append("g").attr("id", "grupo-barco");
+        grupoBarco.append("image")
+            .attr("xlink:href", "https://verdecalma.com.ar/wp-content/uploads/2024/11/sewage.png")
+            .attr("x", centro.x - 20)
+            .attr("y", centro.y - 20)
+            .attr("width", 40)
+            .attr("height", 40)
+            .attr("id", "barco");
+
+        grupoBarco.append("text")
+            .attr("x", centro.x - 35)
+            .attr("y", centro.y - 30)
+            .attr("class", "leyenda")
+            .text("Punto de derrame");
+
+        svg.on("mousemove", function(event) {
+            const [mouseX, mouseY] = d3.pointer(event);
+            const dx = mouseX - centro.x;
+            const dy = mouseY - centro.y;
+            const distancia = Math.sqrt(dx * dx + dy * dy);
+
+            if (distancia <= radioMaximo) {
+                tooltip.style("display", "block")
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 10) + "px")
+                    .text(`Acumulación: ${(concentracion(distancia) * Math.PI * Math.pow(radioReal, 2)).toFixed(2)} mg/L`);
+            } else {
+                tooltip.style("display", "none");
+            }
+        });
+    </script>
+
+    <!-- Pie de página con la información solicitada -->
+    <footer>
+        <div class="footer-universidad">Facultad de Cs. Físico Matemáticas y Naturales - Facultad de Cs. Económicas, Jurídicas y Sociales</div>
+        <div class="footer-universidad">Universidad Nacional de San Luis</div>
+        <div class="footer-info">Cálculo II - Grupo 5</div>
+        <div class="footer-nombres">María Virginia González - Patricia Ruiz Paz - Francisca Scattolini</div>
+    </footer>
+</body>
+</html>
